@@ -5,7 +5,7 @@ import { TosModal, styles } from "./TosModal.jsx";
 // PASTE YOUR 3 KEYS INSIDE THE QUOTES BELOW:
 const SUPABASE_URL = "https://qhazamgltkvliucbcxqp.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_VJzuVqPDm1Rwb29JxiSH5w_eU9SuLQq";
-const GROQ_API_KEY = import.meta.env.VITE_GROQ_API_KEY;
+
 
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -60,7 +60,7 @@ export default function App() {
   }, []);
 
   const loadUserStats = async (userId) => {
-    const { data } = await supabase.from("user_progress").select("topic_stats").eq("user_id", userId).single();
+    const { data } = await supabase.from("user_progress").select("topic_stats").eq("user_id", userId).maybeSingle();
     if (data?.topic_stats) setTopicStats(data.topic_stats);
   };
 
@@ -111,37 +111,36 @@ export default function App() {
     const targetTopics = getTargetTopics();
     const prompt = `Generate ${questionCount} authentic Texas UIL High School Number Sense mental math problems.
 Mode: ${mode.toUpperCase()}. Focus topics: ${targetTopics.join(", ")}.
-Rules: Every question must be solvable mentally in 5-15 seconds using UIL shortcuts. Format answers cleanly (fractions as a/b, decimals, exact numbers).
+Rules: Every question must be solvable mentally in 5-15 seconds using UIL shortcuts. They can be easy or difficult problems, something that you could see on the actual test. Format answers cleanly (fractions as a/b, decimals, exact numbers).
 Return ONLY valid JSON: {"questions":[{"number":1,"topicId":"q1_20_arith","question":"24 x 26 =","answer":"624","trick":"Multiply tens digit by next integer (2x3=6), attach units product (4x6=24)."}]}
 Valid topicIds: ${UIL_TOPICS.map((t) => t.id).join(", ")}`;
 
-    try {
-      const response = await fetch("https://groq.com", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${GROQ_API_KEY}` },
-        body: JSON.stringify({
-          model: "llama-3.3-70b-versatile",
-          messages: [{ role: "user", content: prompt }],
-          response_format: { type: "json_object" }
-        })
-      });
-      const data = await response.json();
-      const parsed = JSON.parse(data.choices[0].message.content);
-      if (!response.ok) throw new Error(data.error?.message || "HTTP " + response.status);
-      const generatedQuestions = parsed.questions || [];
-      setQuestions(generatedQuestions);
-      setAnswers(new Array(generatedQuestions.length).fill(""));
-      setCurrentIndex(0);
-      setUserInput("");
-      setTimeLeft(timeLimitMinutes * 60);
-      setView("test");
-    } catch (err) {
-      alert("Exact Error: "+ err.message);
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
+         try {
+   const response = await fetch("/api/generate", {
+     method: "POST",
+     headers: { "Content-Type": "application/json" },
+     body: JSON.stringify({ prompt })
+   });
+   const data = await response.json();
+   if (!response.ok) {
+     throw new Error(data.error || `HTTP ${response.status}`);
+   }
+   const parsed = JSON.parse(data.choices.message.content);
+   const generatedQuestions = parsed.questions || [];
+   setQuestions(generatedQuestions);
+   setAnswers(new Array(generatedQuestions.length).fill(""));
+   setCurrentIndex(0);
+   setUserInput("");
+   setTimeLeft(timeLimitMinutes * 60);
+   setView("test");
+ } catch (err) {
+   alert("Exact Error: " + err.message);
+   console.error(err);
+ } finally {
+   setLoading(false);
+ }
+
+
 
     const handleKeyDown = (e) => {
     if (e.key === "Enter") {
