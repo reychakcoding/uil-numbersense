@@ -222,6 +222,44 @@ Valid topicIds: ${UIL_TOPICS.map((t) => t.id).join(", ")}`;
       else finishTest(updated);
     }
   };
+  const parseNumericValue = (str) => {
+    const clean = str.trim();
+    if (!clean) return NaN;
+    // Mixed number like "1 1/2" or "-2 3/4"
+    const mixed = clean.match(/^(-?\d+)\s+(\d+)\/(\d+)$/);
+    if (mixed) {
+      const whole = parseFloat(mixed);
+      const frac = parseFloat(mixed) / parseFloat(mixed);
+      return whole < 0 ? whole - frac : whole + frac;
+    }
+    // Simple fraction like "3/2" or "-5/8"
+    const frac = clean.match(/^(-?\d+(?:\.\d+)?)\/(-?\d+(?:\.\d+)?)$/);
+    if (frac) return parseFloat(frac) / parseFloat(frac);
+    // Standard integer or decimal (strip commas)
+    const num = Number(clean.replace(/,/g, ""));
+    return isNaN(num) ? NaN : num;
+  };
+
+  const checkAnswer = (userRaw, keyRaw, questionText = "") => {
+    const uClean = userRaw.replace(/\s+/g, "").toLowerCase();
+    const kClean = keyRaw.replace(/\s+/g, "").toLowerCase();
+    if (!uClean) return false;
+
+    const isEstimation = questionText.includes("(*)");
+    const uNum = parseNumericValue(userRaw);
+    const kNum = parseNumericValue(keyRaw);
+
+    if (isEstimation && !isNaN(uNum) && !isNaN(kNum)) {
+      if (kNum === 0) return uNum === 0;
+      const relError = Math.abs(uNum - kNum) / Math.abs(kNum);
+      return relError <= 0.05;
+    }
+
+    if (!isNaN(uNum) && !isNaN(kNum)) {
+      return Math.abs(uNum - kNum) < 1e-6;
+    }
+    return uClean === kClean;
+  };
 
   const calculateUILGrade = (finalAnswers) => {
     let lastAttemptedIdx = -1;
@@ -233,7 +271,7 @@ Valid topicIds: ${UIL_TOPICS.map((t) => t.id).join(", ")}`;
     const newStats = { ...topicStats };
     for (let i = 0; i <= lastAttemptedIdx; i++) {
       const q = questions[i];
-      const isCorrect = finalAnswers[i].replace(/\s+/g, "").toLowerCase() === q.answer.replace(/\s+/g, "").toLowerCase();
+      const isCorrect = checkAnswer(finalAnswers[i], q.answer, q.question);
       if (!newStats[q.topicId]) newStats[q.topicId] = { correct: 0, attempted: 0 };
       newStats[q.topicId].attempted += 1;
       if (isCorrect) { correct++; newStats[q.topicId].correct += 1; }
@@ -363,7 +401,7 @@ Valid topicIds: ${UIL_TOPICS.map((t) => t.id).join(", ")}`;
             <div style={styles.reviewList}>
               {questions.slice(0, res.lastAttemptedIdx + 1).map((q, idx) => {
                 const uAns = answers[idx] || "(Skipped)";
-                const isRight = uAns.replace(/\s+/g, "").toLowerCase() === q.answer.replace(/\s+/g, "").toLowerCase();
+                const isRight = checkAnswer(answers[idx] || "", q.answer, q.question);
                 return (
                   <div key={idx} style={{ ...styles.reviewItem, borderLeft: isRight ? "4px solid #16a34a" : "4px solid #dc2626" }}>
                     <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "0.95rem" }}>
