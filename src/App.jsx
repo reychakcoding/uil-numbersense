@@ -9,17 +9,77 @@ const SUPABASE_ANON_KEY = "sb_publishable_VJzuVqPDm1Rwb29JxiSH5w_eU9SuLQq";
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 const UIL_TOPICS = [
-  { id: "q1_20_arith", name: "Q1–20: Fast Arithmetic, FOIL & 11s/25s" },
-  { id: "fractions_pct", name: "Q1–20: Fractions, Decimals & Percents" },
-  { id: "bases_mods", name: "Q21–40: Number Bases & Modular Arithmetic" },
-  { id: "sequences_series", name: "Q21–40: Sequences, Series & Summation" },
-  { id: "quadratics_roots", name: "Q21–40: Quadratics, Sum & Product of Roots" },
-  { id: "logs_exponents", name: "Q31–50: Logarithms & Exponent Laws" },
-  { id: "combos_perms", name: "Q31–50: Combinations, Permutations & Sets" },
-  { id: "trig_complex", name: "Q41–60: Trig Identities & Complex Numbers" },
-  { id: "matrices_vectors", name: "Q51–70: Matrices, Determinants & Vectors" },
-  { id: "calculus_limits", name: "Q61–80: Limits, Derivatives & Integrals" }
+  // Q1–20: Mental Arithmetic & Speed Shortcuts
+  { id: "basic_add_sub", name: "Q1–20: Multi-Digit Addition, Subtraction & Order of Operations" },
+  { id: "mult_11_101_111", name: "Q1–20: Multiplying by 11, 101, 111 & Repunits" },
+  { id: "mult_25_50_75_125", name: "Q1–20: Multiplying/Dividing by 5, 25, 50, 75, 125 & 625" },
+  { id: "mult_12_15_18_37", name: "Q1–20: Multiplying by 12, 15, 18, 37 & Halving/Doubling" },
+  { id: "two_digit_foil", name: "Q1–20: General Two-Digit FOIL Multiplication" },
+  { id: "mult_near_100_200", name: "Q1–20: Multiplying Numbers Near 100, 200 or 1000" },
+  { id: "reverse_digit_mult", name: "Q1–20: Reverse-Digit Products (ab × ba) & Sums/Differences" },
+  { id: "same_tens_units10", name: "Q1–20: Same Tens Digit, Units Add to 10 (e.g. 43 × 47)" },
+  { id: "same_units_tens10", name: "Q1–20: Same Units Digit, Tens Add to 10 (e.g. 36 × 76)" },
+  { id: "diff_of_squares", name: "Q1–20: Difference of Squares (a² − b²) & Equidistant Products" },
+  { id: "squaring_end_5", name: "Q1–20: Squaring Numbers Ending in 5 (2-Digit & 3-Digit)" },
+  { id: "squaring_near_50_100", name: "Q1–20: Squaring Numbers Near 50, 100 & 500" },
+  { id: "cubes_exact_roots", name: "Q1–20: Cubes (1³–15³), Square Roots & Cube Roots" },
+  { id: "distributive_factor", name: "Q1–20: Distributive Factoring & Common Multiplier Extraction" },
+  { id: "fraction_ops_mixed", name: "Q1–20: Fraction Operations, Mixed Numbers & Complex Fractions" },
+  { id: "reciprocal_sums", name: "Q1–20: Fraction Reciprocal Sums (a/b + b/a) & Near-1 Fractions" },
+  { id: "repeating_decimals", name: "Q1–20: Pure & Mixed-Prefix Repeating Decimals to Fractions" },
+  { id: "percents_interest", name: "Q1–20: Percents, Successive % Change, Discounts & Simple Interest" },
+  { id: "roman_numerals", name: "Q1–20: Roman Numerals (Both Directions) & Roman Arithmetic" },
+  { id: "unit_conversions", name: "Q1–20: Metric, Customary, Area, Volume, Time & °F/°C Conversions" },
+
+  // Q10–80: Estimation
+  { id: "estimation_star", name: "Q10–80: Every-10th (*) Estimation (Products, Quotients, Roots, Powers, π/e)" },
+
+  // Q21–40: Number Theory & Pre-Algebra
+  { id: "mean_median_mode", name: "Q1–30: Mean, Median, Mode, Range & Weighted Averages" },
+  { id: "gcd_lcm_identity", name: "Q21–40: GCD, LCM & Product Identity (GCD × LCM = a × b)" },
+  { id: "num_sum_divisors", name: "Q21–40: Prime Factorization, Number of Divisors & Sum/Product of Divisors" },
+  { id: "euler_totient", name: "Q21–50: Euler's Totient Function φ(n) & Relatively Prime Counts" },
+  { id: "divisibility_mods", name: "Q21–40: Divisibility Rules, Remainders & Modular Arithmetic" },
+  { id: "units_digit_powers", name: "Q21–40: Units Digit & Last Two Digits of Large Powers (aⁿ)" },
+  { id: "base_conversions", name: "Q21–40: Converting Between Base 10 and Bases 2–16" },
+  { id: "base_arithmetic", name: "Q21–40: Addition, Subtraction & Multiplication in Base-N" },
+  { id: "ratios_variation", name: "Q21–40: Ratios, Proportions, Direct/Inverse/Joint Variation" },
+  { id: "work_rate_mixture", name: "Q21–40: Work, Distance-Rate-Time & Mixture Word Problems" },
+  { id: "sets_venn_subsets", name: "Q21–40: Set Theory, Subsets (2ⁿ), Proper Subsets & Inclusion-Exclusion" },
+  { id: "fibonacci_lucas", name: "Q21–50: Fibonacci & Lucas Sequences (Nth Term & Partial Sums)" },
+
+  // Q21–60: Algebra & Geometry
+  { id: "linear_slope_dist", name: "Q21–40: Slope, Intercepts, Midpoint, Distance & Parallel/Perp Lines" },
+  { id: "coord_triangle_area", name: "Q31–60: Area of Triangles & Polygons from Coordinate Vertices" },
+  { id: "abs_value_ineq", name: "Q21–50: Absolute Value Equations, Inequalities & Integer Solutions" },
+  { id: "quadratic_discrim", name: "Q21–50: Quadratic Discriminant, Vertex & Axis of Symmetry" },
+  { id: "vieta_quadratics", name: "Q21–50: Sum, Product & Sum of Squares/Reciprocals of Quadratic Roots" },
+  { id: "polynomial_theorems", name: "Q31–60: Remainder Theorem, Factor Theorem, Synthetic Div & Cubic Vieta's" },
+  { id: "exponents_surds", name: "Q31–50: Fractional/Negative Exponents & Simplifying Radicals/Surds" },
+  { id: "nested_radicals", name: "Q31–60: Infinite & Finite Nested Radicals (√(a + √(a + ...)))" },
+  { id: "logarithms_change", name: "Q31–60: Logarithm Laws, Change of Base & Log/Exponential Equations" },
+  { id: "arith_sequences", name: "Q21–50: Arithmetic Sequences (Nth Term & Partial Sums)" },
+  { id: "geom_infinite_series", name: "Q31–60: Finite Geometric, Infinite Geometric & Telescoping Series" },
+  { id: "figurate_numbers", name: "Q31–60: Triangular, Square, Pentagonal, Hexagonal & Tetrahedral Numbers" },
+  { id: "polygon_angles_diag", name: "Q21–50: Polygon Interior/Exterior Angles, Side Counts & Diagonals" },
+  { id: "pythag_special_tri", name: "Q21–60: Pythagorean Triples, 30-60-90 & 45-45-90 Triangles" },
+  { id: "triangle_area_radii", name: "Q31–60: Heron's Formula, Equilateral Area, Inradius & Circumradius" },
+  { id: "circle_theorems", name: "Q31–60: Circle Arcs, Inscribed Angles & Power of a Point (Chords/Secants)" },
+  { id: "solid_geometry_3d", name: "Q31–60: 3D Surface Area & Volume (Prisms, Cylinders, Cones, Spheres)" },
+
+  // Q41–80: Combinatorics, Pre-Calculus, Linear Algebra & Calculus
+  { id: "combos_perms", name: "Q31–60: nCr, nPr, Circular Permutations & Distinguishable Arrangements" },
+  { id: "derangements_pigeon", name: "Q41–70: Derangements (!n), Stars & Bars, and Pigeonhole Principle" },
+  { id: "probability_expected", name: "Q41–70: Dice, Card & Coin Probability, Odds & Expected Value" },
+  { id: "binomial_theorem", name: "Q41–70: Binomial Expansion Coefficients, Sum of Coeffs & Specific Terms" },
+  { id: "trig_unit_circle", name: "Q41–70: Exact Unit Circle Trig Values, Radians/Degrees & Inverse Trig" },
+  { id: "trig_identities_laws", name: "Q51–80: Double/Half-Angle, Sum/Diff Identities & Law of Sines/Cosines" },
+  { id: "complex_numbers", name: "Q41–70: Powers of i, Conjugates, Modulus |a+bi| & De Moivre's Theorem" },
+  { id: "conic_sections", name: "Q51–80: Circles, Parabolas, Ellipses & Hyperbolas (Foci, Eccentricity, Asymptotes)" },
+  { id: "matrices_determinants", name: "Q51–80: Matrix Ops, 2×2 & 3×3 Determinants, Trace & Cramer's Rule" },
+  { id: "vectors_polar_calc", name: "Q61–80: 2D/3D Vectors (Dot/Cross), Polar/Parametric, Limits, Derivatives & Integrals" }
 ];
+
 
 export default function App() {
   const [user, setUser] = useState(null);
@@ -107,11 +167,23 @@ export default function App() {
   const startTest = async () => {
     setLoading(true);
     const targetTopics = getTargetTopics();
-    const prompt = `Generate ${questionCount} authentic Texas UIL High School Number Sense mental math problems.
+        const prompt = `Generate ${questionCount} authentic Texas UIL High School Number Sense mental math problems.
 Mode: ${mode.toUpperCase()}. Focus topics: ${targetTopics.join(", ")}.
-Rules: Every question must be solvable mentally in 5-15 seconds using UIL shortcuts. Format answers cleanly (fractions as a/b, decimals, exact numbers).
-Return ONLY valid JSON: {"questions":[{"number":1,"topicId":"q1_20_arith","question":"24 x 26 =","answer":"624","trick":"Multiply tens digit by next integer (2x3=6), attach units product (4x6=24)."}]}
+
+CRITICAL RULES FOR AUTHENTIC UIL COVERAGE & ZERO CLUSTERING:
+1. NEVER repeat the same topicId or trick back-to-back. Every consecutive question MUST switch to a completely different shortcut and topicId from the previous question.
+2. In NORMAL mode, spread questions evenly across the full Q1–Q80 UIL progression proportional to ${questionCount} questions:
+   - First 25%: basic ops/PEMDAS, 11s/101s/111s, 25s/50s/75s/125s, 12s/15s/18s/37s, 2-digit FOIL, mult near 100/200, reverse-digit products, same tens/units add to 10, same units/tens add to 10, diff of squares, squaring ending in 5 or near 50/100, cubes/roots, distributive factoring, fraction/mixed ops, a/b + b/a, repeating decimals, % change, Roman numerals, unit conversions.
+   - Second 25%: mean/median/mode, GCD/LCM, number & sum of divisors, Euler's totient, divisibility/mods, units digit of powers, base conversions & base-N arithmetic, ratios/variation, work/rate/mixture, sets/subsets, Fibonacci/Lucas sequences, slope/distance, coordinate triangle area, abs value/inequalities.
+   - Third 25%: quadratic discriminant/vertex, Vieta's root formulas, polynomial remainder/factor theorems, fractional exponents/surds, nested radicals, logarithms, arithmetic/geometric/infinite/telescoping series, figurate numbers, polygon angles/diagonals, Pythagorean triples/special triangles, Heron's/inradius/circumradius, circle theorems, 3D volume/surface area.
+   - Final 25%: nCr/nPr/circular perms, derangements/stars & bars, probability/expected value, binomial theorem, unit circle/inverse trig, trig identities/Law of Sines/Cosines, complex numbers/De Moivre's, conic sections, matrix ops/2x2 & 3x3 determinants/Cramer's rule, 2D/3D vectors, polar/parametric equations, limits, derivatives, definite integrals.
+3. In ADAPTIVE mode, heavily shuffle and interleave across the selected focus topics so no two adjacent questions use the same formula.
+4. Every 10th question (Q10, Q20, Q30, etc.) MUST be a UIL estimation problem prefixed with "(*)" (e.g., "(*) 418 x 592 =") using topicId "estimation_star", with the exact calculated number as the answer.
+5. Every problem must be solvable mentally in 5–15 seconds using standard UIL shortcuts. Format answers cleanly (simplified improper fractions as a/b, exact decimals, or integers).
+
+Return ONLY valid JSON: {"questions":[{"number":1,"topicId":"mult_12_15_18_37","question":"37 x 27 =","answer":"999","trick":"37 x 3 = 111, so 37 x 27 = 111 x 9 = 999."}]}
 Valid topicIds: ${UIL_TOPICS.map((t) => t.id).join(", ")}`;
+
 
     try {
       const response = await fetch("/api/generate", {
