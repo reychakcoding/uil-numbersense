@@ -12,7 +12,9 @@ export default async function handler(req, res) {
     const body = typeof req.body === "string" ? JSON.parse(req.body) : req.body;
     const prompt = body?.prompt;
 
-    const groqEndpoint = "https://" + "://groq.com";
+    const host = ["api", "groq", "com"].join(".");
+const groqEndpoint = `https://${host}/openai/v1/chat/completions`;
+
     const response = await fetch(groqEndpoint, {
       method: "POST",
       headers: {
