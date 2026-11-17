@@ -127,6 +127,7 @@ Valid topicIds: ${UIL_TOPICS.map((t) => t.id).join(", ")}`;
       });
       const data = await response.json();
       const parsed = JSON.parse(data.choices[0].message.content);
+      if (!response.ok) throw new Error(data.error?.message || "HTTP " + response.status);
       const generatedQuestions = parsed.questions || [];
       setQuestions(generatedQuestions);
       setAnswers(new Array(generatedQuestions.length).fill(""));
@@ -135,7 +136,7 @@ Valid topicIds: ${UIL_TOPICS.map((t) => t.id).join(", ")}`;
       setTimeLeft(timeLimitMinutes * 60);
       setView("test");
     } catch (err) {
-      alert("Error generating questions. Double-check your Groq API key.");
+      alert("Exact Error: "+ err.message);
       console.error(err);
     } finally {
       setLoading(false);
