@@ -12,7 +12,8 @@ export default async function handler(req, res) {
     const body = typeof req.body === "string" ? JSON.parse(req.body) : req.body;
     const prompt = body?.prompt;
 
-    const response = await fetch("https://groq.com", {
+    const groqEndpoint = "https://" + "://groq.com";
+    const response = await fetch(groqEndpoint, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -29,7 +30,7 @@ export default async function handler(req, res) {
     const text = await response.text();
     if (!response.ok) {
       return res.status(response.status).json({
-        error: `Groq HTTP ${response.status}: ${text || "(empty body - check GROQ_API_KEY)"}`
+        error: `Groq HTTP ${response.status}: ${text || "(empty body)"}`
       });
     }
 
