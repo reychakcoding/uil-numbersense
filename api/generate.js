@@ -33,7 +33,7 @@ export default async function handler(req, res) {
           model,
           messages: [{ role: "user", content: prompt }],
           response_format: { type: "json_object" },
-          max_tokens: 2200
+          max_tokens: 6000
         })
       });
 
