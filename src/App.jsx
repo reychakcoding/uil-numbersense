@@ -123,6 +123,19 @@ export default function App() {
   };
 
   const saveUserStats = async (userId, newStats) => {
+      const clearSingleTopic = async (topicId) => {
+    const updated = { ...topicStats };
+    delete updated[topicId];
+    setTopicStats(updated);
+    if (user) await saveUserStats(user.id, updated);
+  };
+
+  const clearAllProgress = async () => {
+    if (!window.confirm("Reset all topic accuracy stats? This cannot be undone.")) return;
+    setTopicStats({});
+    if (user) await saveUserStats(user.id, {});
+  };
+
     await supabase.from("user_progress").upsert({ user_id: userId, topic_stats: newStats }, { onConflict: "user_id" });
   };
 
@@ -353,7 +366,60 @@ Valid topicIds: ${UIL_TOPICS.map((t) => t.id).join(", ")}`;
         </div>
         <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
           <button style={view === "setup" || view === "test" ? styles.navBtnActive : styles.navBtn} onClick={() => setView("setup")}>Practice</button>
-          <button style={view === "analytics" ? styles.navBtnActive : styles.navBtn} onClick={() => setView("analytics")}>Analytics</button>
+          <button style=      {view === "analytics" && (
+        <div style={styles.card}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "12px", marginBottom: "8px" }}>
+            <div>
+              <h2 style={{ margin: 0, fontSize: "1.35rem", letterSpacing: "-0.02em" }}>Topic Mastery & Priority Drills</h2>
+              <p style={{ color: "#64748b", fontSize: "0.92rem", margin: "4px 0 0" }}>Adaptive mode automatically prioritizes your lowest-accuracy UIL topic bands.</p>
+            </div>
+            {Object.keys(topicStats).length > 0 && (
+              <button
+                style={{ ...styles.dangerBtn, whiteSpace: "nowrap" }}
+                onClick={clearAllProgress}
+              >
+                Reset All
+              </button>
+            )}
+          </div>
+
+          {UIL_TOPICS.map((topic) => {
+            const stat = topicStats[topic.id] || { correct: 0, attempted: 0 };
+            const pct = stat.attempted === 0 ? null : Math.round((stat.correct / stat.attempted) * 100);
+            const status = pct === null ? "Untested" : pct >= 80 ? "Strong" : pct >= 50 ? "Needs Speed" : "Priority Practice";
+            const color = pct === null ? "#64748b" : pct >= 80 ? "#16a34a" : pct >= 50 ? "#d97706" : "#dc2626";
+            return (
+              <div key={topic.id} style={styles.statRow}>
+                <div>
+                  <strong style={{ fontSize: "0.95rem" }}>{topic.name}</strong>
+                  <div style={{ fontSize: "0.82rem", color: "#64748b" }}>{stat.correct} / {stat.attempted} solved</div>
+                </div>
+                <div style={{ display: "flex", alignItems: "center", gap: "10px", fontFamily: "'JetBrains Mono', monospace", fontSize: "0.9rem" }}>
+                  <span style={{ fontWeight: "700", color }}>{pct !== null ? `${pct}%` : "--"} · {status}</span>
+                  {stat.attempted > 0 && (
+                    <button
+                      onClick={() => clearSingleTopic(topic.id)}
+                      title="Clear this topic's stats"
+                      style={{
+                        background: "transparent",
+                        border: "1px solid #e2e8f0",
+                        borderRadius: "6px",
+                        padding: "3px 8px",
+                        fontSize: "0.75rem",
+                        color: "#64748b",
+                        cursor: "pointer"
+                      }}
+                    >
+                      Clear
+                    </button>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
           <button style={styles.navBtn} onClick={() => setShowTosModal(true)}>ToS</button>
           <button style={styles.navBtn} onClick={() => supabase.auth.signOut()}>Sign Out</button>
         </div>
