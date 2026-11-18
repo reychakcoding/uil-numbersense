@@ -286,6 +286,30 @@ Valid topicIds: ${UIL_TOPICS.map((t) => t.id).join(", ")}`;
     setView("results");
     if (user) await saveUserStats(user.id, res.newStats);
   };
+  const renderMath = (text) => {
+    if (!text) return "";
+    const str = String(text);
+
+    if (typeof window !== "undefined" && window.katex) {
+      try {
+        const latexReady = str
+          .replace(/\$+/g, "")
+          .replace(/(\d)\s*[xX]\s*(\d)/g, "$1 \\times $2")
+          .replace(/×/g, "\\times ")
+          .replace(/÷/g, "\\div ");
+
+        const html = window.katex.renderToString(latexReady, {
+          throwOnError: false,
+          displayMode: false
+        });
+        return <span dangerouslySetInnerHTML={{ __html: html }} />;
+      } catch {
+        return <span>{str}</span>;
+      }
+    }
+
+    return <span>{str}</span>;
+  };
 
   const formatTime = (secs) => `${Math.floor(secs / 60)}:${secs % 60 < 10 ? "0" : ""}${secs % 60}`;
   if (!user) {
@@ -374,7 +398,7 @@ Valid topicIds: ${UIL_TOPICS.map((t) => t.id).join(", ")}`;
           </div>
           <div style={styles.questionBox}>
             <span style={styles.qNum}>({currentIndex + 1})</span>
-            <span>{questions[currentIndex].question}</span>
+            <span>{renderMath(questions[currentIndex].question)}</span>
           </div>
           <input ref={inputRef} type="text" value={userInput} onChange={(e) => setUserInput(e.target.value)} onKeyDown={handleKeyDown} placeholder="Enter answer..." style={styles.answerInput} />
           <div style={styles.row}>
@@ -405,7 +429,7 @@ Valid topicIds: ${UIL_TOPICS.map((t) => t.id).join(", ")}`;
                 return (
                   <div key={idx} style={{ ...styles.reviewItem, borderLeft: isRight ? "4px solid #16a34a" : "4px solid #dc2626" }}>
                     <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "0.95rem" }}>
-                      <b>({idx + 1}) {q.question}</b> &nbsp;|&nbsp; Yours: <b>{uAns}</b> &nbsp;|&nbsp; Key: <b>{q.answer}</b>
+                      <b>({idx + 1}) {renderMath(q.question)}</b> &nbsp;|&nbsp; Yours: <b>{uAns}</b> &nbsp;|&nbsp; Key: <b>{renderMath(q.answer)}</b>
                     </div>
                     {!isRight && <div style={{ fontSize: "0.85rem", color: "#475569", marginTop: "4px" }}>Shortcut: {q.trick}</div>}
                   </div>
