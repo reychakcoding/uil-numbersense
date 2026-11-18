@@ -6,46 +6,46 @@
     <title>UIL Number Sense — Adaptive Speed Trainer</title>
     <script>
       (function () {
+        var fontHost = ["https://api", "fontshare", "com"].join(".");
+        var satoshiLink = document.createElement("link");
+        satoshiLink.rel = "stylesheet";
+        satoshiLink.href = fontHost + "/v2/css?f[]=satoshi@300,400,500,700,900,1&display=swap";
+        document.head.appendChild(satoshiLink);
+
         var cdn = ["https://cdn", "jsdelivr", "net"].join(".");
         var katexBase = cdn + "/npm/katex@0.16.11/dist/";
-        var geistBase = cdn + "/npm/geist@1.3.1/dist/fonts/";
+        var katexLink = document.createElement("link");
+        katexLink.rel = "stylesheet";
+        katexLink.href = katexBase + "katex.min.css";
+        document.head.appendChild(katexLink);
 
-        [
-          katexBase + "katex.min.css",
-          geistBase + "geist-sans/style.min.css",
-          geistBase + "geist-mono/style.min.css"
-        ].forEach(function (href) {
-          var link = document.createElement("link");
-          link.rel = "stylesheet";
-          link.href = href;
-          document.head.appendChild(link);
-        });
-
-        var script = document.createElement("script");
-        script.defer = true;
-        script.src = katexBase + "katex.min.js";
-        document.head.appendChild(script);
+        var katexScript = document.createElement("script");
+        katexScript.defer = true;
+        katexScript.src = katexBase + "katex.min.js";
+        document.head.appendChild(katexScript);
       })();
     </script>
     <style>
       *, *::before, *::after {
         box-sizing: border-box;
       }
+      body, button, input, label, select, textarea {
+        font-family: 'Satoshi', -apple-system, BlinkMacSystemFont, sans-serif;
+        font-weight: 500;
+        font-variation-settings: 'wght' 500;
+      }
       body {
         margin: 0;
-        font-family: 'Geist', -apple-system, BlinkMacSystemFont, sans-serif;
         background-color: #fafafa;
         color: #09090b;
-        letter-spacing: -0.02em;
+        letter-spacing: -0.015em;
         -webkit-font-smoothing: antialiased;
       }
       h1, h2, h3, strong {
-        font-family: 'Geist', -apple-system, BlinkMacSystemFont, sans-serif;
-        letter-spacing: -0.03em;
-      }
-      button, input {
-        font-family: 'Geist', -apple-system, BlinkMacSystemFont, sans-serif;
-        letter-spacing: -0.015em;
+        font-family: 'Satoshi', -apple-system, BlinkMacSystemFont, sans-serif;
+        font-weight: 700;
+        font-variation-settings: 'wght' 700;
+        letter-spacing: -0.025em;
       }
       input:focus, button:focus {
         outline: 2px solid #2563eb;
