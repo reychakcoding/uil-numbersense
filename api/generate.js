@@ -1,8 +1,7 @@
 const GROQ_MODELS = [
   "openai/gpt-oss-20b",
-  "llama-3.3-70b-versatile",
-  "qwen/qwen3-32b",
-  "meta-llama/llama-4-scout-17b-16e-instruct"
+  "openai/gpt-oss-120b",
+  "qwen/qwen3.8-27b"
 ];
 
 export default async function handler(req, res) {
@@ -43,7 +42,6 @@ export default async function handler(req, res) {
         return res.status(200).json(JSON.parse(text));
       }
 
-      // If 429 rate-limited on this model, immediately try the next model in the pool
       if (response.status === 429) {
         lastError = `Rate limit on ${model}, trying fallback...`;
         continue;
