@@ -51,6 +51,38 @@
         outline: 2px solid #2563eb;
         outline-offset: 2px;
       }
+            .dual-range {
+        position: absolute;
+        width: 100%;
+        pointer-events: none;
+        -webkit-appearance: none;
+        appearance: none;
+        background: transparent;
+        margin: 0;
+      }
+      .dual-range::-webkit-slider-thumb {
+        pointer-events: all;
+        -webkit-appearance: none;
+        appearance: none;
+        height: 18px;
+        width: 18px;
+        border-radius: 50%;
+        background: #2563eb;
+        border: 2px solid #ffffff;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+        cursor: grab;
+      }
+      .dual-range::-moz-range-thumb {
+        pointer-events: all;
+        height: 18px;
+        width: 18px;
+        border-radius: 50%;
+        background: #2563eb;
+        border: 2px solid #ffffff;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+        cursor: grab;
+      }
+
     </style>
   </head>
   <body>
