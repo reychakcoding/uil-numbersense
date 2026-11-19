@@ -441,13 +441,14 @@ Valid topicIds: ${UIL_TOPICS.map((t) => t.id).join(", ")}`;
 
             </div>
 
-            <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.75rem", color: "#64748b", marginTop: "4px" }}>
-              <span>Q1 (Basics)</span>
-              <span>Q20</span>
-              <span>Q40</span>
-              <span>Q60</span>
-              <span>Q80 (State Killers)</span>
+                        <div style={{ position: "relative", height: "18px", fontSize: "0.75rem", color: "#64748b", marginTop: "4px" }}>
+              <span style={{ position: "absolute", left: "0%" }}>Q1 (Basics)</span>
+              <span style={{ position: "absolute", left: `${(19 / 79) * 100}%`, transform: "translateX(-50%)" }}>Q20</span>
+              <span style={{ position: "absolute", left: `${(39 / 79) * 100}%`, transform: "translateX(-50%)" }}>Q40</span>
+              <span style={{ position: "absolute", left: `${(59 / 79) * 100}%`, transform: "translateX(-50%)" }}>Q60</span>
+              <span style={{ position: "absolute", right: "0%" }}>Q80 (State Killers)</span>
             </div>
+
           </div>
 
           <button style={styles.primaryBtn} onClick={startTest} disabled={loading}>{loading ? "Generating UIL Problems..." : "Start Timed Test"}</button>
