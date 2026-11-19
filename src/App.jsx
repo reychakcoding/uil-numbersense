@@ -184,37 +184,43 @@ const startTest = async (nextView = "test") => {
     });
     const activePool = allowedTopics.length > 0 ? allowedTopics : UIL_TOPICS;
 
-            const prompt = `Generate EXACTLY ${questionCount} authentic Texas UIL High School Number Sense mental math problems (numbered 1 to ${questionCount}).
+                const buildPrompt = (batchCount, startNum) => `Generate EXACTLY ${batchCount} authentic Texas UIL High School Number Sense mental math problems (numbered ${startNum} to ${startNum + batchCount - 1}).
 Mode: ${mode.toUpperCase()}.
 Target UIL Question Band: ONLY generate problems matching official UIL difficulty for Q${minQuestionBand} through Q${maxQuestionBand}.
 Eligible topics: ${activePool.map((t) => `${t.id} (${t.name})`).slice(0, 30).join("; ")}.
 
 CRITICAL RULES:
-1. EXACT COUNT: The "questions" array MUST contain ALL ${questionCount} items (number 1 through ${questionCount}). Never stop at 5 or 6 items—generate multiple distinct problems per topic with different numbers to reach ${questionCount} total.
-2. NO BACK-TO-BACK REPEATS: Never put the same topicId or operation on two consecutive questions.
-3. EVERY 10TH PROBLEM IS ESTIMATION: Q10, Q20, Q30, Q40, Q50, Q60, Q70, and Q80 MUST start with "(*) " using topicId "estimation_star" (e.g., "(*) $418 \\times 592 =$"), with the exact number as the answer.
-4. SINGLE NUMERICAL ANSWER: Ask for ONE exact integer, simplified improper fraction ("7/4"), or decimal. Never ask two things at once.
-5. CLEAN LATEX DELIMITERS: Wrap ONLY math expressions in single $...$ signs and keep English words outside $...$ (e.g., "If $\\sin\\theta = 3/5$ and $\\cos\\theta = 4/5$, find $\\sin 2\\theta$." or "$37 \\times 27 =$").
-6. ULTRA-CONCISE TRICKS: Keep "trick" under 12 words so all ${questionCount} questions fit cleanly.
+1. EXACT COUNT: Return ALL ${batchCount} items in the "questions" array.
+2. NO BACK-TO-BACK REPEATS: Never repeat the same topicId or operation consecutively.
+3. EVERY 10TH PROBLEM IS ESTIMATION: Any problem whose number is a multiple of 10 (10, 20, 30, 40, 50, 60, 70, 80) MUST start with "(*) " using topicId "estimation_star" (e.g., "(*) $418 \\\\times 592 =$").
+4. CLEAN PHRASING: Do NOT start pure equations with "If ". Write direct equations like "$37 \\\\times 27 =$" or direct questions like "Find the sum of the positive divisors of $36$."
+5. SINGLE ANSWER & CLEAN LATEX: Ask for ONE exact integer, simplified improper fraction ("7/4"), or decimal. Use double backslashes in JSON (e.g. "\\\\times", "\\\\frac{3}{4}", "\\\\sqrt{144}") inside single $...$ signs. Keep "trick" under 12 words.
 
-Return ONLY valid JSON: {"questions":[{"number":1,"topicId":"${activePool[0].id}","question":"$37 \\times 27 =$","answer":"999","trick":"37 x 3 = 111, so 111 x 9 = 999."}]}`;
-
-
-
-
+Return ONLY valid JSON: {"questions":[{"number":${startNum},"topicId":"${activePool.id}","question":"$37 \\\\times 27 =$","answer":"999","trick":"37 x 3 = 111, so 111 x 9 = 999."}]}`;
 
     try {
-      const response = await fetch("/api/generate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt })
-      });
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.error || `HTTP ${response.status}`);
-      }
-      const parsed = JSON.parse(data.choices[0].message.content);
-      const generatedQuestions = parsed.questions || [];
+      const batches = questionCount > 20
+        ? [
+            { count: Math.ceil(questionCount / 2), start: 1 },
+            { count: Math.floor(questionCount / 2), start: Math.ceil(questionCount / 2) + 1 }
+          ]
+        : [{ count: questionCount, start: 1 }];
+
+      const results = await Promise.all(
+        batches.map(async (b) => {
+          const response = await fetch("/api/generate", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ prompt: buildPrompt(b.count, b.start) })
+          });
+          const data = await response.json();
+          if (!response.ok) throw new Error(data.error || `HTTP ${response.status}`);
+          const parsed = JSON.parse(data.choices.message.content);
+          return parsed.questions || [];
+        })
+      );
+
+      const generatedQuestions = results.flat().slice(0, questionCount);
       setQuestions(generatedQuestions);
       setAnswers(new Array(generatedQuestions.length).fill(""));
       setCurrentIndex(0);
@@ -227,7 +233,6 @@ Return ONLY valid JSON: {"questions":[{"number":1,"topicId":"${activePool[0].id}
     } finally {
       setLoading(false);
     }
-  };
 
   const handleKeyDown = (e) => {
     if (e.key === "Enter") {
@@ -304,12 +309,16 @@ Return ONLY valid JSON: {"questions":[{"number":1,"topicId":"${activePool[0].id}
     setView("results");
     if (user) await saveUserStats(user.id, res.newStats);
   };
-    const renderMath = (text) => {
+      const renderMath = (text) => {
     if (!text) return "";
     const str = String(text)
+      .replace(/\times/g, "\\times")
+      .replace(/\theta/g, "\\theta")
+      .replace(/\tan/g, "\\tan")
       .replace(/(\d)\s*[xX]\s*(\d)/g, "$1 \\times $2")
       .replace(/×/g, "\\times ")
       .replace(/÷/g, "\\div ");
+
 
     if (typeof window !== "undefined" && window.katex) {
       if (str.includes("$")) {
