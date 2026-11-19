@@ -416,26 +416,29 @@ Valid topicIds: ${UIL_TOPICS.map((t) => t.id).join(", ")}`;
                   width: `${((maxQuestionBand - minQuestionBand) / 79) * 100}%`
                 }}
               />
+                            {/* Left Handle (Min Question) */}
               <input
                 type="range"
                 min="1"
-                max="70"
+                max="80"
                 step="1"
                 value={minQuestionBand}
-                onChange={(e) => setMinQuestionBand(Math.min(Number(e.target.value), maxQuestionBand - 10))}
+                onChange={(e) => setMinQuestionBand(Math.min(Number(e.target.value), maxQuestionBand - 5))}
                 className="dual-range"
                 style={{ zIndex: minQuestionBand > 60 ? 5 : 3 }}
               />
+              {/* Right Handle (Max Question) */}
               <input
                 type="range"
-                min="10"
+                min="1"
                 max="80"
                 step="1"
                 value={maxQuestionBand}
-                onChange={(e) => setMaxQuestionBand(Math.max(Number(e.target.value), minQuestionBand + 10))}
+                onChange={(e) => setMaxQuestionBand(Math.max(Number(e.target.value), minQuestionBand + 5))}
                 className="dual-range"
                 style={{ zIndex: 4 }}
               />
+
             </div>
 
             <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.75rem", color: "#64748b", marginTop: "4px" }}>
