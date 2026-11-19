@@ -175,7 +175,6 @@ export default function App() {
     const activePool = allowedTopics.length > 0 ? allowedTopics : UIL_TOPICS;
 const startTest = async (nextView = "test") => {
 
-  const startTest = async () => {
     setLoading(true);
     const targetTopics = getTargetTopics();
         const allowedTopics = UIL_TOPICS.filter((t) => {
