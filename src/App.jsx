@@ -177,6 +177,13 @@ export default function App() {
   const startTest = async () => {
     setLoading(true);
     const targetTopics = getTargetTopics();
+        const allowedTopics = UIL_TOPICS.filter((t) => {
+      const match = t.name.match(/^Q(\d+)[–-](\d+)/);
+      if (!match) return true;
+      return Number(match[2]) >= minQuestionBand && Number(match[1]) <= maxQuestionBand;
+    });
+    const activePool = allowedTopics.length > 0 ? allowedTopics : UIL_TOPICS;
+
             const prompt = `Generate EXACTLY ${questionCount} authentic Texas UIL High School Number Sense mental math problems (numbered 1 to ${questionCount}).
 Mode: ${mode.toUpperCase()}.
 Target UIL Question Band: ONLY generate problems matching official UIL difficulty for Q${minQuestionBand} through Q${maxQuestionBand}.
@@ -190,7 +197,8 @@ CRITICAL RULES:
 5. CLEAN LATEX DELIMITERS: Wrap ONLY math expressions in single $...$ signs and keep English words outside $...$ (e.g., "If $\\sin\\theta = 3/5$ and $\\cos\\theta = 4/5$, find $\\sin 2\\theta$." or "$37 \\times 27 =$").
 6. ULTRA-CONCISE TRICKS: Keep "trick" under 12 words so all ${questionCount} questions fit cleanly.
 
-Return ONLY valid JSON: {"questions":[{"number":1,"topicId":"${activePool.id}","question":"$37 \\times 27 =$","answer":"999","trick":"37 x 3 = 111, so 111 x 9 = 999."}]}`;
+Return ONLY valid JSON: {"questions":[{"number":1,"topicId":"${activePool[0].id}","question":"$37 \\times 27 =$","answer":"999","trick":"37 x 3 = 111, so 111 x 9 = 999."}]}`;
+
 
 Valid topicIds: ${UIL_TOPICS.map((t) => t.id).join(", ")}`;
 
