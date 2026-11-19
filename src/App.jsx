@@ -9,17 +9,15 @@ const SUPABASE_ANON_KEY = "sb_publishable_VJzuVqPDm1Rwb29JxiSH5w_eU9SuLQq";
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 const UIL_TOPICS = [
- const UIL_TOPICS = [
-  // Q1–20: Fundamental Speed & Mental Arithmetic
-   // Q1–20: Mental Arithmetic & Speed Shortcuts
+  // Q1–20: Mental Arithmetic & Speed Shortcuts
   { id: "basic_add_sub", name: "Q1–20: Multi-Digit Addition, Subtraction & Order of Operations" },
   { id: "mult_11_101_111", name: "Q1–20: Multiplying by 11, 101, 111 & Repunits" },
   { id: "mult_25_50_75_125", name: "Q1–20: Multiplying/Dividing by 5, 25, 50, 75, 125 & 625" },
   { id: "mult_12_15_18_37", name: "Q1–20: Multiplying by 12, 15, 18, 37 & Halving/Doubling" },
- { id: "two_digit_foil", name: "Q1–20: General Two-Digit FOIL Multiplication" },
+  { id: "two_digit_foil", name: "Q1–20: General Two-Digit FOIL Multiplication" },
   { id: "mult_near_100_200", name: "Q1–20: Multiplying Numbers Near 100, 200 or 1000" },
   { id: "reverse_digit_mult", name: "Q1–20: Reverse-Digit Products (ab × ba) & Sums/Differences" },
- { id: "same_tens_units10", name: "Q1–20: Same Tens Digit, Units Add to 10 (e.g. 43 × 47)" },
+  { id: "same_tens_units10", name: "Q1–20: Same Tens Digit, Units Add to 10 (e.g. 43 × 47)" },
   { id: "same_units_tens10", name: "Q1–20: Same Units Digit, Tens Add to 10 (e.g. 36 × 76)" },
   { id: "diff_of_squares", name: "Q1–20: Difference of Squares (a² − b²) & Equidistant Products" },
   { id: "squaring_end_5", name: "Q1–20: Squaring Numbers Ending in 5 (2-Digit & 3-Digit)" },
@@ -32,7 +30,7 @@ const UIL_TOPICS = [
   { id: "percents_interest", name: "Q1–20: Percents, Successive % Change, Discounts & Simple Interest" },
   { id: "roman_numerals", name: "Q1–20: Roman Numerals (Both Directions) & Roman Arithmetic" },
   { id: "unit_conversions", name: "Q1–20: Metric, Customary, Area, Volume, Time & °F/°C Conversions" },
- 
+
   // Q10–80: Estimation
   { id: "estimation_star", name: "Q10–80: Every-10th (*) Estimation (Products, Quotients, Roots, Powers, π/e)" },
 
@@ -49,7 +47,8 @@ const UIL_TOPICS = [
   { id: "work_rate_mixture", name: "Q21–40: Work, Distance-Rate-Time & Mixture Word Problems" },
   { id: "sets_venn_subsets", name: "Q21–40: Set Theory, Subsets (2ⁿ), Proper Subsets & Inclusion-Exclusion" },
   { id: "fibonacci_lucas", name: "Q21–50: Fibonacci & Lucas Sequences (Nth Term & Partial Sums)" },
- // Q21–60: Algebra & Geometry
+
+  // Q21–60: Algebra & Geometry
   { id: "linear_slope_dist", name: "Q21–40: Slope, Intercepts, Midpoint, Distance & Parallel/Perp Lines" },
   { id: "coord_triangle_area", name: "Q31–60: Area of Triangles & Polygons from Coordinate Vertices" },
   { id: "abs_value_ineq", name: "Q21–50: Absolute Value Equations, Inequalities & Integer Solutions" },
@@ -57,7 +56,7 @@ const UIL_TOPICS = [
   { id: "vieta_quadratics", name: "Q21–50: Sum, Product & Sum of Squares/Reciprocals of Quadratic Roots" },
   { id: "polynomial_theorems", name: "Q31–60: Remainder Theorem, Factor Theorem, Synthetic Div & Cubic Vieta's" },
   { id: "exponents_surds", name: "Q31–50: Fractional/Negative Exponents & Simplifying Radicals/Surds" },
- { id: "nested_radicals", name: "Q31–60: Infinite & Finite Nested Radicals (√(a + √(a + ...)))" },
+  { id: "nested_radicals", name: "Q31–60: Infinite & Finite Nested Radicals (√(a + √(a + ...)))" },
   { id: "logarithms_change", name: "Q31–60: Logarithm Laws, Change of Base & Log/Exponential Equations" },
   { id: "arith_sequences", name: "Q21–50: Arithmetic Sequences (Nth Term & Partial Sums)" },
   { id: "geom_infinite_series", name: "Q31–60: Finite Geometric, Infinite Geometric & Telescoping Series" },
@@ -67,6 +66,7 @@ const UIL_TOPICS = [
   { id: "triangle_area_radii", name: "Q31–60: Heron's Formula, Equilateral Area, Inradius & Circumradius" },
   { id: "circle_theorems", name: "Q31–60: Circle Arcs, Inscribed Angles & Power of a Point (Chords/Secants)" },
   { id: "solid_geometry_3d", name: "Q31–60: 3D Surface Area & Volume (Prisms, Cylinders, Cones, Spheres)" },
+
   // Q41–80: Combinatorics, Pre-Calculus, Linear Algebra & Calculus
   { id: "combos_perms", name: "Q31–60: nCr, nPr, Circular Permutations & Distinguishable Arrangements" },
   { id: "derangements_pigeon", name: "Q41–70: Derangements (!n), Stars & Bars, and Pigeonhole Principle" },
@@ -78,8 +78,6 @@ const UIL_TOPICS = [
   { id: "conic_sections", name: "Q51–80: Circles, Parabolas, Ellipses & Hyperbolas (Foci, Eccentricity, Asymptotes)" },
   { id: "matrices_determinants", name: "Q51–80: Matrix Ops, 2×2 & 3×3 Determinants, Trace & Cramer's Rule" },
   { id: "vectors_polar_calc", name: "Q61–80: 2D/3D Vectors (Dot/Cross), Polar/Parametric, Limits, Derivatives & Integrals" }
-];
-
 ];
 
 
@@ -182,10 +180,7 @@ CRITICAL RULES FOR AUTHENTIC UIL COVERAGE & ZERO CLUSTERING:
    - Final 25%: nCr/nPr/circular perms, derangements/stars & bars, probability/expected value, binomial theorem, unit circle/inverse trig, trig identities/Law of Sines/Cosines, complex numbers/De Moivre's, conic sections, matrix ops/2x2 & 3x3 determinants/Cramer's rule, 2D/3D vectors, polar/parametric equations, limits, derivatives, definite integrals.
 3. In ADAPTIVE mode, heavily shuffle and interleave across the selected focus topics so no two adjacent questions use the same formula.
 4. Every 10th question (Q10, Q20, Q30, etc.) MUST be a UIL estimation problem prefixed with "(*)" (e.g., "(*) 418 x 592 =") using topicId "estimation_star", with the exact calculated number as the answer.
-5. Every problem must be solvable mentally in 5–20 seconds using standard UIL shortcuts. Format answers cleanly (simplified improper fractions as a/b, exact decimals, or integers).
-6. Every 10th question (Q10, Q20, Q30, etc.) MUST be a UIL estimation problem prefixed with "(*)" (e.g., "(*) $418 \\times 592 =$") using topicId "estimation_star", with the exact calculated number as the answer.
-7. Every problem MUST ask for ONE single numerical value (never ask for two values like "find X and Y"). Wrap all math expressions in $...$ (e.g., "Find the number of positive divisors of $36$." or "$\\frac{3}{4} + \\frac{4}{3} =$"). Solvable mentally in 5–15 seconds.
-
+5. Every problem must be solvable mentally in 5–15 seconds using standard UIL shortcuts. Format answers cleanly (simplified improper fractions as a/b, exact decimals, or integers).
 
 Return ONLY valid JSON: {"questions":[{"number":1,"topicId":"mult_12_15_18_37","question":"37 x 27 =","answer":"999","trick":"37 x 3 = 111, so 37 x 27 = 111 x 9 = 999."}]}
 Valid topicIds: ${UIL_TOPICS.map((t) => t.id).join(", ")}`;
@@ -292,43 +287,30 @@ Valid topicIds: ${UIL_TOPICS.map((t) => t.id).join(", ")}`;
     setView("results");
     if (user) await saveUserStats(user.id, res.newStats);
   };
-    const renderMath = (text) => {
+  const renderMath = (text) => {
     if (!text) return "";
-    const str = String(text)
-      .replace(/(\d)\s*[xX]\s*(\d)/g, "$1 \\times $2")
-      .replace(/×/g, "\\times ")
-      .replace(/÷/g, "\\div ");
+    const str = String(text);
 
     if (typeof window !== "undefined" && window.katex) {
-      if (str.includes("$")) {
-        const parts = str.split(/(\$[^$]+\$)/g);
-        return (
-          <span>
-            {parts.map((part, i) => {
-              if (part.startsWith("$") && part.endsWith("$") && part.length > 2) {
-                const html = window.katex.renderToString(part.slice(1, -1), { throwOnError: false });
-                return <span key={i} dangerouslySetInnerHTML={{ __html: html }} />;
-              }
-              return <span key={i}>{part}</span>;
-            })}
-          </span>
-        );
-      }
+      try {
+        const latexReady = str
+          .replace(/\$+/g, "")
+          .replace(/(\d)\s*[xX]\s*(\d)/g, "$1 \\times $2")
+          .replace(/×/g, "\\times ")
+          .replace(/÷/g, "\\div ");
 
-      const withoutFuncs = str.replace(
-        /\\(frac|sqrt|times|div|overline|log|ln|sin|cos|tan|sec|csc|cot|lim|int|sum|binom|det|cdot|pi|theta|infty|text|mathrm)/g,
-        ""
-      );
-      const hasProseWords = /[a-zA-Z]{4,}/.test(withoutFuncs);
-      if (!hasProseWords) {
-        const html = window.katex.renderToString(str, { throwOnError: false });
+        const html = window.katex.renderToString(latexReady, {
+          throwOnError: false,
+          displayMode: false
+        });
         return <span dangerouslySetInnerHTML={{ __html: html }} />;
+      } catch {
+        return <span>{str}</span>;
       }
     }
 
     return <span>{str}</span>;
   };
-
 
   const formatTime = (secs) => `${Math.floor(secs / 60)}:${secs % 60 < 10 ? "0" : ""}${secs % 60}`;
   if (!user) {
