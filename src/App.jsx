@@ -308,16 +308,21 @@ Return ONLY valid JSON: {"questions":[{"number":${startNum},"topicId":"${activeP
     setView("results");
     if (user) await saveUserStats(user.id, res.newStats);
   };
-      const renderMath = (text) => {
+        const renderMath = (text) => {
     if (!text) return "";
-    const str = String(text)
-      .replace(/\times/g, "\\times")
-      .replace(/\theta/g, "\\theta")
-      .replace(/\tan/g, "\\tan")
+    let str = String(text)
+      .replace(/\x0c/g, "\\f")
+      .replace(/\x09/g, "\\t")
+      .replace(/\x08/g, "\\b")
+      .replace(/\\\./g, ".")
+      .replace(/\\%/g, "%")
       .replace(/(\d)\s*[xX]\s*(\d)/g, "$1 \\times $2")
       .replace(/×/g, "\\times ")
       .replace(/÷/g, "\\div ");
 
+    if ((str.match(/\$/g) || []).length % 2 === 1) {
+      str = str.replace(/\$(?=[^$]*$)/, "");
+    }
 
     if (typeof window !== "undefined" && window.katex) {
       if (str.includes("$")) {
@@ -348,6 +353,7 @@ Return ONLY valid JSON: {"questions":[{"number":${startNum},"topicId":"${activeP
 
     return <span>{str}</span>;
   };
+
 
 
   const formatTime = (secs) => `${Math.floor(secs / 60)}:${secs % 60 < 10 ? "0" : ""}${secs % 60}`;
