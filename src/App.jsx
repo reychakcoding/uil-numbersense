@@ -200,7 +200,7 @@ CRITICAL RULES:
 Return ONLY valid JSON: {"questions":[{"number":1,"topicId":"${activePool[0].id}","question":"$37 \\times 27 =$","answer":"999","trick":"37 x 3 = 111, so 111 x 9 = 999."}]}`;
 
 
-Valid topicIds: ${UIL_TOPICS.map((t) => t.id).join(", ")}`;
+
 
 
     try {
