@@ -173,18 +173,16 @@ export default function App() {
       return Number(match[2]) >= minQuestionBand && Number(match[1]) <= maxQuestionBand;
     });
     const activePool = allowedTopics.length > 0 ? allowedTopics : UIL_TOPICS;
-const startTest = async (nextView = "test") => {
-
+  const startTest = async (nextView = "test") => {
     setLoading(true);
-    const targetTopics = getTargetTopics();
-        const allowedTopics = UIL_TOPICS.filter((t) => {
+    const allowedTopics = UIL_TOPICS.filter((t) => {
       const match = t.name.match(/^Q(\d+)[–-](\d+)/);
       if (!match) return true;
       return Number(match[2]) >= minQuestionBand && Number(match[1]) <= maxQuestionBand;
     });
     const activePool = allowedTopics.length > 0 ? allowedTopics : UIL_TOPICS;
 
-                const buildPrompt = (batchCount, startNum) => `Generate EXACTLY ${batchCount} authentic Texas UIL High School Number Sense mental math problems (numbered ${startNum} to ${startNum + batchCount - 1}).
+    const buildPrompt = (batchCount, startNum) => `Generate EXACTLY ${batchCount} authentic Texas UIL High School Number Sense mental math problems (numbered ${startNum} to ${startNum + batchCount - 1}).
 Mode: ${mode.toUpperCase()}.
 Target UIL Question Band: ONLY generate problems matching official UIL difficulty for Q${minQuestionBand} through Q${maxQuestionBand}.
 Eligible topics: ${activePool.map((t) => `${t.id} (${t.name})`).slice(0, 30).join("; ")}.
@@ -196,7 +194,7 @@ CRITICAL RULES:
 4. CLEAN PHRASING: Do NOT start pure equations with "If ". Write direct equations like "$37 \\\\times 27 =$" or direct questions like "Find the sum of the positive divisors of $36$."
 5. SINGLE ANSWER & CLEAN LATEX: Ask for ONE exact integer, simplified improper fraction ("7/4"), or decimal. Use double backslashes in JSON (e.g. "\\\\times", "\\\\frac{3}{4}", "\\\\sqrt{144}") inside single $...$ signs. Keep "trick" under 12 words.
 
-Return ONLY valid JSON: {"questions":[{"number":${startNum},"topicId":"${activePool.id}","question":"$37 \\\\times 27 =$","answer":"999","trick":"37 x 3 = 111, so 111 x 9 = 999."}]}`;
+Return ONLY valid JSON: {"questions":[{"number":${startNum},"topicId":"${activePool[0].id}","question":"$37 \\\\times 27 =$","answer":"999","trick":"37 x 3 = 111, so 111 x 9 = 999."}]}`;
 
     try {
       const batches = questionCount > 20
@@ -215,7 +213,7 @@ Return ONLY valid JSON: {"questions":[{"number":${startNum},"topicId":"${activeP
           });
           const data = await response.json();
           if (!response.ok) throw new Error(data.error || `HTTP ${response.status}`);
-          const parsed = JSON.parse(data.choices.message.content);
+          const parsed = JSON.parse(data.choices[0].message.content);
           return parsed.questions || [];
         })
       );
@@ -233,6 +231,7 @@ Return ONLY valid JSON: {"questions":[{"number":${startNum},"topicId":"${activeP
     } finally {
       setLoading(false);
     }
+  };
 
   const handleKeyDown = (e) => {
     if (e.key === "Enter") {
