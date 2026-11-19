@@ -468,6 +468,10 @@ Valid topicIds: ${UIL_TOPICS.map((t) => t.id).join(", ")}`;
           })}
         </div>
       )}
+            <footer style={{ textAlign: "center", marginTop: "32px", paddingBottom: "16px", fontSize: "0.85rem", color: "#64748b" }}>
+        Made by <strong style={{ color: "#0f172a" }}>Reyansh Chakka</strong>
+      </footer>
+
     </div>
   );
 }
