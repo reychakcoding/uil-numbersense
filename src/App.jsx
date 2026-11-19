@@ -223,7 +223,7 @@ Return ONLY valid JSON: {"questions":[{"number":${startNum},"topicId":"${sampleI
           const response = await fetch("/api/generate", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ prompt: buildPrompt(b.count, b.start) })
+            body: JSON.stringify({ prompt: buildPrompt(b.count + 2, b.start) })
           });
           const data = await response.json();
           if (!response.ok) throw new Error(data.error || `HTTP ${response.status}`);
@@ -357,6 +357,12 @@ Return ONLY valid JSON: {"questions":[{"number":${startNum},"topicId":"${sampleI
     }
 
     if (typeof window !== "undefined" && window.katex) {
+          if (!str.includes("$")) {
+      str = str
+        .replace(/(\d+)\s*\\?circ/g, "$$$1^\\circ$$")
+        .replace(/(\d+(?:\.\d+)?)\s*\\(times|div|cdot)\s*(\d+(?:\.\d+)?)/g, "$$$1 \\$2 $3$$");
+    }
+
       if (str.includes("$")) {
         const parts = str.split(/(\$[^$]+\$)/g);
         return (
