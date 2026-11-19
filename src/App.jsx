@@ -173,7 +173,7 @@ export default function App() {
       return Number(match[2]) >= minQuestionBand && Number(match[1]) <= maxQuestionBand;
     });
     const activePool = allowedTopics.length > 0 ? allowedTopics : UIL_TOPICS;
-  const startTest = async (nextView = "test") => {
+    const startTest = async (nextView = "test") => {
     setLoading(true);
     const allowedTopics = UIL_TOPICS.filter((t) => {
       const match = t.name.match(/^Q(\d+)[–-](\d+)/);
@@ -182,27 +182,41 @@ export default function App() {
     });
     const activePool = allowedTopics.length > 0 ? allowedTopics : UIL_TOPICS;
 
-    const buildPrompt = (batchCount, startNum) => `Generate EXACTLY ${batchCount} authentic Texas UIL High School Number Sense mental math problems (numbered ${startNum} to ${startNum + batchCount - 1}).
+    const buildPrompt = (batchCount, startNum) => {
+      const endNum = startNum + batchCount - 1;
+      const scaleStart = Math.round(minQuestionBand + ((startNum - 1) / Math.max(1, questionCount - 1)) * (maxQuestionBand - minQuestionBand));
+      const scaleEnd = Math.round(minQuestionBand + ((endNum - 1) / Math.max(1, questionCount - 1)) * (maxQuestionBand - minQuestionBand));
+
+      const batchTopics = activePool.filter((t) => {
+        const match = t.name.match(/^Q(\d+)[–-](\d+)/);
+        if (!match) return true;
+        return Number(match[2]) >= Math.max(1, scaleStart - 10) && Number(match[1]) <= Math.min(80, scaleEnd + 10);
+      });
+      const poolForBatch = (batchTopics.length > 0 ? batchTopics : activePool).sort(() => Math.random() - 0.5).slice(0, 25);
+      const sampleId = poolForBatch[0]?.id || "mult_12_15_18_37";
+
+      return `Generate EXACTLY ${batchCount} authentic Texas UIL High School Number Sense mental math problems (numbered ${startNum} to ${endNum}).
 Mode: ${mode.toUpperCase()}.
-Target UIL Question Band: ONLY generate problems matching official UIL difficulty for Q${minQuestionBand} through Q${maxQuestionBand}.
-Eligible topics: ${activePool.map((t) => `${t.id} (${t.name})`).slice(0, 30).join("; ")}.
+Target UIL Difficulty for THIS batch: Official UIL Q${scaleStart} through Q${scaleEnd} difficulty.
+Eligible topics for this batch: ${poolForBatch.map((t) => `${t.id} (${t.name})`).join("; ")}.
 
 CRITICAL RULES:
 1. EXACT COUNT: Return ALL ${batchCount} items in the "questions" array.
-2. NO BACK-TO-BACK REPEATS: Never repeat the same topicId or operation consecutively.
+2. NO BACK-TO-BACK REPEATS: Never repeat the same topicId or operation consecutively, and vary numbers widely across problems.
 3. EVERY 10TH PROBLEM IS ESTIMATION: Any problem whose number is a multiple of 10 (10, 20, 30, 40, 50, 60, 70, 80) MUST start with "(*) " using topicId "estimation_star" (e.g., "(*) $418 \\\\times 592 =$").
-4. CLEAN PHRASING: Do NOT start pure equations with "If ". Write direct equations like "$37 \\\\times 27 =$" or direct questions like "Find the sum of the positive divisors of $36$."
-5. SINGLE ANSWER & CLEAN LATEX: Ask for ONE exact integer, simplified improper fraction ("7/4"), or decimal. Use double backslashes in JSON (e.g. "\\\\times", "\\\\frac{3}{4}", "\\\\sqrt{144}") inside single $...$ signs. Keep "trick" under 12 words.
+4. CLEAN PHRASING: Write direct equations like "$37 \\\\times 27 =$" or direct questions like "Find the sum of the positive divisors of $36$." Do NOT start equations with "If ".
+5. SINGLE ANSWER & DOUBLE-ESCAPED LATEX: Ask for ONE exact integer, simplified improper fraction ("7/4"), or decimal. Always use double backslashes in JSON ("\\\\times", "\\\\frac{3}{4}", "\\\\sqrt{144}", "\\\\overline{36}") inside single $...$ signs. Keep "trick" under 12 words.
 
-Return ONLY valid JSON: {"questions":[{"number":${startNum},"topicId":"${activePool[0].id}","question":"$37 \\\\times 27 =$","answer":"999","trick":"37 x 3 = 111, so 111 x 9 = 999."}]}`;
+Return ONLY valid JSON: {"questions":[{"number":${startNum},"topicId":"${sampleId}","question":"$37 \\\\times 27 =$","answer":"999","trick":"37 x 3 = 111, so 111 x 9 = 999."}]}`;
+    };
 
     try {
-      const batches = questionCount > 20
-        ? [
-            { count: Math.ceil(questionCount / 2), start: 1 },
-            { count: Math.floor(questionCount / 2), start: Math.ceil(questionCount / 2) + 1 }
-          ]
-        : [{ count: questionCount, start: 1 }];
+      const CHUNK_SIZE = 15;
+      const batches = [];
+      for (let start = 1; start <= questionCount; start += CHUNK_SIZE) {
+        const count = Math.min(CHUNK_SIZE, questionCount - start + 1);
+        batches.push({ count, start });
+      }
 
       const results = await Promise.all(
         batches.map(async (b) => {
@@ -218,9 +232,27 @@ Return ONLY valid JSON: {"questions":[{"number":${startNum},"topicId":"${activeP
         })
       );
 
-      const generatedQuestions = results.flat().slice(0, questionCount);
-      setQuestions(generatedQuestions);
-      setAnswers(new Array(generatedQuestions.length).fill(""));
+      // Shuffle & interleave within each 10-question block (keeping Q10, Q20, Q30... as (*) estimation!)
+      const raw = results.flat().slice(0, questionCount);
+      const interleaved = [];
+      for (let blockStart = 0; blockStart < raw.length; blockStart += 10) {
+        const chunk = raw.slice(blockStart, blockStart + 10);
+        const estItem = chunk.find((q, idx) => (blockStart + idx + 1) % 10 === 0 || q.topicId === "estimation_star");
+        const regular = chunk.filter((q) => q !== estItem).sort(() => Math.random() - 0.5);
+
+        const mixed = [];
+        while (regular.length > 0) {
+          const prevTopic = mixed[mixed.length - 1]?.topicId;
+          let pick = regular.findIndex((q) => q.topicId !== prevTopic);
+          if (pick === -1) pick = 0;
+          mixed.push(regular.splice(pick, 1)[0]);
+        }
+        if (estItem) mixed.push(estItem);
+        interleaved.push(...mixed);
+      }
+
+      setQuestions(interleaved);
+      setAnswers(new Array(interleaved.length).fill(""));
       setCurrentIndex(0);
       setUserInput("");
       setTimeLeft(timeLimitMinutes * 60);
