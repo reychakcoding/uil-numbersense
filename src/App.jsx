@@ -173,6 +173,7 @@ export default function App() {
       return Number(match[2]) >= minQuestionBand && Number(match[1]) <= maxQuestionBand;
     });
     const activePool = allowedTopics.length > 0 ? allowedTopics : UIL_TOPICS;
+const startTest = async (nextView = "test") => {
 
   const startTest = async () => {
     setLoading(true);
@@ -220,7 +221,7 @@ Return ONLY valid JSON: {"questions":[{"number":1,"topicId":"${activePool[0].id}
       setCurrentIndex(0);
       setUserInput("");
       setTimeLeft(timeLimitMinutes * 60);
-      setView("test");
+      setView(nextView);
     } catch (err) {
       alert("Exact Error: " + err.message);
       console.error(err);
@@ -377,7 +378,7 @@ Return ONLY valid JSON: {"questions":[{"number":1,"topicId":"${activePool[0].id}
 
   return (
     <div style={styles.container}>
-      <nav style={styles.nav}>
+      <nav className="no-print" style={styles.nav}>
         <div style={styles.brand}>
           <span>UIL Number Sense</span>
           <span style={styles.badge}>HS Adaptive</span>
@@ -470,7 +471,18 @@ Return ONLY valid JSON: {"questions":[{"number":1,"topicId":"${activePool[0].id}
 
           </div>
 
-          <button style={styles.primaryBtn} onClick={startTest} disabled={loading}>{loading ? "Generating UIL Problems..." : "Start Timed Test"}</button>
+                   <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: "12px", marginTop: "22px" }}>
+            <button style={{ ...styles.primaryBtn, marginTop: 0 }} onClick={() => startTest("test")} disabled={loading}>
+              {loading ? "Generating UIL Problems..." : "Start Timed Test"}
+            </button>
+            <button
+              style={{ ...styles.navBtn, padding: "13px 16px", fontWeight: "700", border: "1px solid #cbd5e1", background: "#ffffff" }}
+              onClick={() => startTest("print")}
+              disabled={loading}
+            >
+              {loading ? "Building..." : "Printable Sheet"}
+            </button>
+          </div>
         </div>
       )}
 
@@ -553,7 +565,55 @@ Return ONLY valid JSON: {"questions":[{"number":1,"topicId":"${activePool[0].id}
           })}
         </div>
       )}
-            <footer style={{ textAlign: "center", marginTop: "32px", paddingBottom: "16px", fontSize: "0.85rem", color: "#64748b" }}>
+            {view === "print" && (
+        <div style={styles.card}>
+          <div className="no-print" style={{ ...styles.row, marginBottom: "20px", paddingBottom: "14px", borderBottom: "1px solid #e2e8f0" }}>
+            <div>
+              <strong>Official UIL Printable Practice Sheet ({questions.length} Questions)</strong>
+              <div style={{ fontSize: "0.85rem", color: "#64748b" }}>Page 1 prints the two-column exam. Page 2 prints the Answer Key & Tricks.</div>
+            </div>
+            <div style={{ display: "flex", gap: "8px" }}>
+              <button style={styles.navBtnActive} onClick={() => window.print()}>Print / Save PDF</button>
+              <button style={styles.navBtn} onClick={() => setView("setup")}>Back</button>
+            </div>
+          </div>
+
+          {/* Page 1: Official Two-Column Exam Layout */}
+          <div style={{ textAlign: "center", marginBottom: "20px", paddingBottom: "12px", borderBottom: "2px solid #0f172a" }}>
+            <h2 style={{ margin: 0, fontSize: "1.2rem", textTransform: "uppercase", letterSpacing: "0.04em" }}>
+              UIL High School Number Sense Practice Test (Q{minQuestionBand}–Q{maxQuestionBand})
+            </h2>
+            <div style={{ fontSize: "0.85rem", marginTop: "8px", color: "#334155" }}>
+              Name: _____________________________ &nbsp;&nbsp;&nbsp; Date: ______________ &nbsp;&nbsp;&nbsp; Score (+5 / -4): __________
+            </div>
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px 32px", fontSize: "0.92rem" }}>
+            {questions.map((q, idx) => (
+              <div key={idx} style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", borderBottom: "1px dotted #cbd5e1", padding: "5px 0" }}>
+                <span style={{ paddingRight: "8px" }}>
+                  <b>({idx + 1})</b> {renderMath(q.question)}
+                </span>
+                <span style={{ whiteSpace: "nowrap", color: "#94a3b8" }}>___________</span>
+              </div>
+            ))}
+          </div>
+
+          {/* Page 2: Answer Key & Shortcuts */}
+          <div style={{ pageBreakBefore: "always", marginTop: "40px", paddingTop: "18px", borderTop: "2px solid #0f172a" }}>
+            <h3 style={{ margin: "0 0 14px", fontSize: "1.1rem" }}>Answer Key & Mental Math Shortcuts</h3>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px 28px", fontSize: "0.84rem" }}>
+              {questions.map((q, idx) => (
+                <div key={idx} style={{ padding: "5px 0", borderBottom: "1px solid #f1f5f9", lineHeight: "1.4" }}>
+                  <b>({idx + 1}) {renderMath(q.answer)}</b> — <span style={{ color: "#475569" }}>{renderMath(q.trick)}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+            <footer className="no-print" style={{ textAlign: "center", marginTop: "32px", paddingBottom: "16px", fontSize: "0.85rem", color: "#64748b" }}>
         Made by <strong style={{ color: "#0f172a" }}>Reyansh Chakka</strong>
       </footer>
 
