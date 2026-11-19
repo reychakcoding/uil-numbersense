@@ -177,23 +177,21 @@ export default function App() {
   const startTest = async () => {
     setLoading(true);
     const targetTopics = getTargetTopics();
-        const prompt = `Generate ${questionCount} authentic Texas UIL High School Number Sense mental math problems.
-Mode: ${mode.toUpperCase()}. Focus topics: ${targetTopics.join(", ")}.
+            const prompt = `Generate EXACTLY ${questionCount} authentic Texas UIL High School Number Sense mental math problems (numbered 1 to ${questionCount}).
+Mode: ${mode.toUpperCase()}.
+Target UIL Question Band: ONLY generate problems matching official UIL difficulty for Q${minQuestionBand} through Q${maxQuestionBand}.
+Eligible topics: ${activePool.map((t) => `${t.id} (${t.name})`).slice(0, 30).join("; ")}.
 
-CRITICAL RULES FOR AUTHENTIC UIL COVERAGE & ZERO CLUSTERING:
-1. NEVER repeat the same topicId or trick back-to-back. Every consecutive question MUST switch to a completely different shortcut and topicId from the previous question.
-2. In NORMAL mode, spread questions evenly across the full Q1–Q80 UIL progression proportional to ${questionCount} questions:
-   - First 25%: basic ops/PEMDAS, 11s/101s/111s, 25s/50s/75s/125s, 12s/15s/18s/37s, 2-digit FOIL, mult near 100/200, reverse-digit products, same tens/units add to 10, same units/tens add to 10, diff of squares, squaring ending in 5 or near 50/100, cubes/roots, distributive factoring, fraction/mixed ops, a/b + b/a, repeating decimals, % change, Roman numerals, unit conversions.
-   - Second 25%: mean/median/mode, GCD/LCM, number & sum of divisors, Euler's totient, divisibility/mods, units digit of powers, base conversions & base-N arithmetic, ratios/variation, work/rate/mixture, sets/subsets, Fibonacci/Lucas sequences, slope/distance, coordinate triangle area, abs value/inequalities.
-   - Third 25%: quadratic discriminant/vertex, Vieta's root formulas, polynomial remainder/factor theorems, fractional exponents/surds, nested radicals, logarithms, arithmetic/geometric/infinite/telescoping series, figurate numbers, polygon angles/diagonals, Pythagorean triples/special triangles, Heron's/inradius/circumradius, circle theorems, 3D volume/surface area.
-   - Final 25%: nCr/nPr/circular perms, derangements/stars & bars, probability/expected value, binomial theorem, unit circle/inverse trig, trig identities/Law of Sines/Cosines, complex numbers/De Moivre's, conic sections, matrix ops/2x2 & 3x3 determinants/Cramer's rule, 2D/3D vectors, polar/parametric equations, limits, derivatives, definite integrals.
-3. In ADAPTIVE mode, heavily shuffle and interleave across the selected focus topics so no two adjacent questions use the same formula.
-4. Every 10th question (Q10, Q20, Q30, etc.) MUST be a UIL estimation problem prefixed with "(*)" (e.g., "(*) 418 x 592 =") using topicId "estimation_star", with the exact calculated number as the answer.
-5. Every problem must be solvable mentally in 5–15 seconds using standard UIL shortcuts. Format answers cleanly (simplified improper fractions as a/b, exact decimals, or integers).
-Target UIL Question Band: ONLY generate problems matching official UIL difficulty for Q${minQuestionBand} through Q${maxQuestionBand}. Focus on these eligible topics: ${activePool.map((t) => t.name).slice(0, 25).join(", ")}.
+CRITICAL RULES:
+1. EXACT COUNT: The "questions" array MUST contain ALL ${questionCount} items (number 1 through ${questionCount}). Never stop at 5 or 6 items—generate multiple distinct problems per topic with different numbers to reach ${questionCount} total.
+2. NO BACK-TO-BACK REPEATS: Never put the same topicId or operation on two consecutive questions.
+3. EVERY 10TH PROBLEM IS ESTIMATION: Q10, Q20, Q30, Q40, Q50, Q60, Q70, and Q80 MUST start with "(*) " using topicId "estimation_star" (e.g., "(*) $418 \\times 592 =$"), with the exact number as the answer.
+4. SINGLE NUMERICAL ANSWER: Ask for ONE exact integer, simplified improper fraction ("7/4"), or decimal. Never ask two things at once.
+5. CLEAN LATEX DELIMITERS: Wrap ONLY math expressions in single $...$ signs and keep English words outside $...$ (e.g., "If $\\sin\\theta = 3/5$ and $\\cos\\theta = 4/5$, find $\\sin 2\\theta$." or "$37 \\times 27 =$").
+6. ULTRA-CONCISE TRICKS: Keep "trick" under 12 words so all ${questionCount} questions fit cleanly.
 
+Return ONLY valid JSON: {"questions":[{"number":1,"topicId":"${activePool.id}","question":"$37 \\times 27 =$","answer":"999","trick":"37 x 3 = 111, so 111 x 9 = 999."}]}`;
 
-Return ONLY valid JSON: {"questions":[{"number":1,"topicId":"mult_12_15_18_37","question":"37 x 27 =","answer":"999","trick":"37 x 3 = 111, so 37 x 27 = 111 x 9 = 999."}]}
 Valid topicIds: ${UIL_TOPICS.map((t) => t.id).join(", ")}`;
 
 
@@ -298,30 +296,43 @@ Valid topicIds: ${UIL_TOPICS.map((t) => t.id).join(", ")}`;
     setView("results");
     if (user) await saveUserStats(user.id, res.newStats);
   };
-  const renderMath = (text) => {
+    const renderMath = (text) => {
     if (!text) return "";
-    const str = String(text);
+    const str = String(text)
+      .replace(/(\d)\s*[xX]\s*(\d)/g, "$1 \\times $2")
+      .replace(/×/g, "\\times ")
+      .replace(/÷/g, "\\div ");
 
     if (typeof window !== "undefined" && window.katex) {
-      try {
-        const latexReady = str
-          .replace(/\$+/g, "")
-          .replace(/(\d)\s*[xX]\s*(\d)/g, "$1 \\times $2")
-          .replace(/×/g, "\\times ")
-          .replace(/÷/g, "\\div ");
+      if (str.includes("$")) {
+        const parts = str.split(/(\$[^$]+\$)/g);
+        return (
+          <span>
+            {parts.map((part, i) => {
+              if (part.startsWith("$") && part.endsWith("$") && part.length > 2) {
+                const html = window.katex.renderToString(part.slice(1, -1), { throwOnError: false });
+                return <span key={i} dangerouslySetInnerHTML={{ __html: html }} />;
+              }
+              return <span key={i}>{part}</span>;
+            })}
+          </span>
+        );
+      }
 
-        const html = window.katex.renderToString(latexReady, {
-          throwOnError: false,
-          displayMode: false
-        });
+      const withoutFuncs = str.replace(
+        /\\(frac|sqrt|times|div|overline|log|ln|sin|cos|tan|sec|csc|cot|lim|int|sum|binom|det|cdot|pi|theta|infty|text|mathrm)/g,
+        ""
+      );
+      const hasProseWords = /[a-zA-Z]{2,}/.test(withoutFuncs);
+      if (!hasProseWords) {
+        const html = window.katex.renderToString(str, { throwOnError: false });
         return <span dangerouslySetInnerHTML={{ __html: html }} />;
-      } catch {
-        return <span>{str}</span>;
       }
     }
 
     return <span>{str}</span>;
   };
+
 
   const formatTime = (secs) => `${Math.floor(secs / 60)}:${secs % 60 < 10 ? "0" : ""}${secs % 60}`;
   if (!user) {
