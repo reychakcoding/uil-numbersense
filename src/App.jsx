@@ -94,6 +94,9 @@ export default function App() {
   const [mode, setMode] = useState("normal");
   const [questionCount, setQuestionCount] = useState(40);
   const [timeLimitMinutes, setTimeLimitMinutes] = useState(5);
+    const [minQuestionBand, setMinQuestionBand] = useState(1);
+  const [maxQuestionBand, setMaxQuestionBand] = useState(80);
+
 
   const [questions, setQuestions] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -164,6 +167,12 @@ export default function App() {
     scored.sort((a, b) => a.acc - b.acc);
     return scored.slice(0, 4).map((t) => t.name);
   };
+    const allowedTopics = UIL_TOPICS.filter((t) => {
+      const match = t.name.match(/^Q(\d+)[–-](\d+)/);
+      if (!match) return true;
+      return Number(match[2]) >= minQuestionBand && Number(match[1]) <= maxQuestionBand;
+    });
+    const activePool = allowedTopics.length > 0 ? allowedTopics : UIL_TOPICS;
 
   const startTest = async () => {
     setLoading(true);
@@ -181,6 +190,8 @@ CRITICAL RULES FOR AUTHENTIC UIL COVERAGE & ZERO CLUSTERING:
 3. In ADAPTIVE mode, heavily shuffle and interleave across the selected focus topics so no two adjacent questions use the same formula.
 4. Every 10th question (Q10, Q20, Q30, etc.) MUST be a UIL estimation problem prefixed with "(*)" (e.g., "(*) 418 x 592 =") using topicId "estimation_star", with the exact calculated number as the answer.
 5. Every problem must be solvable mentally in 5–15 seconds using standard UIL shortcuts. Format answers cleanly (simplified improper fractions as a/b, exact decimals, or integers).
+Target UIL Question Band: ONLY generate problems matching official UIL difficulty for Q${minQuestionBand} through Q${maxQuestionBand}. Focus on these eligible topics: ${activePool.map((t) => t.name).slice(0, 25).join(", ")}.
+
 
 Return ONLY valid JSON: {"questions":[{"number":1,"topicId":"mult_12_15_18_37","question":"37 x 27 =","answer":"999","trick":"37 x 3 = 111, so 37 x 27 = 111 x 9 = 999."}]}
 Valid topicIds: ${UIL_TOPICS.map((t) => t.id).join(", ")}`;
@@ -385,6 +396,57 @@ Valid topicIds: ${UIL_TOPICS.map((t) => t.id).join(", ")}`;
               <input type="number" min="1" max="30" value={timeLimitMinutes} onChange={(e) => setTimeLimitMinutes(Number(e.target.value))} style={styles.input} />
             </div>
           </div>
+                    <div style={{ marginTop: "20px" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px" }}>
+              <label style={{ ...styles.label, marginTop: 0 }}>Target UIL Question Range</label>
+              <span style={{ fontSize: "0.88rem", fontWeight: "700", color: "#2563eb", background: "#eff6ff", padding: "3px 10px", borderRadius: "999px" }}>
+                Q{minQuestionBand} – Q{maxQuestionBand}
+              </span>
+            </div>
+
+            <div style={{ position: "relative", height: "24px", display: "flex", alignItems: "center" }}>
+              <div style={{ position: "absolute", width: "100%", height: "6px", background: "#e2e8f0", borderRadius: "999px" }} />
+              <div
+                style={{
+                  position: "absolute",
+                  height: "6px",
+                  background: "#2563eb",
+                  borderRadius: "999px",
+                  left: `${((minQuestionBand - 1) / 79) * 100}%`,
+                  width: `${((maxQuestionBand - minQuestionBand) / 79) * 100}%`
+                }}
+              />
+              <input
+                type="range"
+                min="1"
+                max="70"
+                step="1"
+                value={minQuestionBand}
+                onChange={(e) => setMinQuestionBand(Math.min(Number(e.target.value), maxQuestionBand - 10))}
+                className="dual-range"
+                style={{ zIndex: minQuestionBand > 60 ? 5 : 3 }}
+              />
+              <input
+                type="range"
+                min="10"
+                max="80"
+                step="1"
+                value={maxQuestionBand}
+                onChange={(e) => setMaxQuestionBand(Math.max(Number(e.target.value), minQuestionBand + 10))}
+                className="dual-range"
+                style={{ zIndex: 4 }}
+              />
+            </div>
+
+            <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.75rem", color: "#64748b", marginTop: "4px" }}>
+              <span>Q1 (Basics)</span>
+              <span>Q20</span>
+              <span>Q40</span>
+              <span>Q60</span>
+              <span>Q80 (State Killers)</span>
+            </div>
+          </div>
+
           <button style={styles.primaryBtn} onClick={startTest} disabled={loading}>{loading ? "Generating UIL Problems..." : "Start Timed Test"}</button>
         </div>
       )}
